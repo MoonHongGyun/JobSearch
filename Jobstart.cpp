@@ -11,10 +11,19 @@ int Start::FirstMap()
 {
     system("clear");
     std::string select;
-    cout << "1.회원가입\n2.로그인\n";
+    cout << "       __    ______   .______       __  .__   __. \n"
+         << "      |  |  /  __  \\  |   _  \\     |  | |  \\ |  | \n"
+         << "      |  | |  |  |  | |  |_)  |    |  | |   \\|  | \n"
+         << ".--.  |  | |  |  |  | |   _  <     |  | |  . `  | \n"
+         << "|  `--'  | |  `--'  | |  |_)  |    |  | |  |\\   | \n"
+         << " \\______/   \\______/  |______/     |__| |__| \\__| \n"
+         << "─────────────────────────────────────────────────\n";
+
+    cout
+        << "1.회원가입\n2.로그인\n3.종료하기\n";
     cout << "번호를 입력해주세요.: ";
     getline(std::cin, select);
-    while (select != "1" && select != "2")
+    while (select != "1" && select != "2" && select != "3")
     {
         cout << "없는 번호입니다. 다시입력하세요.\n";
         cout << "번호를 입력해주세요.: ";
@@ -22,8 +31,10 @@ int Start::FirstMap()
     }
     if (select == "1")
         return 1;
-    else
+    else if (select == "2")
         return 2;
+    else
+        return 3;
 }
 
 int Start::MainMap(int player)
@@ -31,11 +42,13 @@ int Start::MainMap(int player)
     system("clear");
     SQLiteCpp cpp;
     std::vector<std::vector<std::string>> check;
-    std::string RECOMMENDATION = "SELECT Title,Coperation,Local FROM Search WHERE RANDOM() LIMIT 3;";
+    std::string RECOMMENDATION = "SELECT Title,Coperation,Local FROM Search ORDER BY RANDOM() LIMIT 3;";
     std::string select;
 
     cpp._sqlite3_open("JobSearch");
     check = cpp.GetRecords(RECOMMENDATION);
+    cout << "-추천 공고-" << endl;
+    cout << "-----------------------------------------------------------" << endl;
     for (size_t j = 0; j < check.size(); j++)
         for (size_t k = 0; k < check[0].size(); k++)
             switch (k)
@@ -54,7 +67,7 @@ int Start::MainMap(int player)
                 break;
             }
     cout << "-----------------------------------------------------------" << endl;
-    cout << "1 -> 검색하기" << endl
+    cout << "0 -> 새로고침\n1 -> 검색하기" << endl
          << "2 -> 로그아웃" << endl;
     if (player == 0)
         cout << "3 -> 정보 업데이트" << endl;
@@ -80,77 +93,99 @@ int Start::MainMap(int player)
     return atoi(select.c_str());
 }
 
-void Start::SearchMap()
+int Start::SearchMap()
 {
-    std::string select;
     while (1)
     {
-        system("clear");
-        for (int i = 0; i < keyword1.size(); i++)
-            cout << "※ " << keyword1[i] << " ";
-        cout << endl;
-        for (int i = 0; i < keyword2.size(); i++)
-            cout << "※ " << keyword2[i] << " ";
-        cout << endl;
-        for (int i = 0; i < keyword3.size(); i++)
-            cout << "※ " << keyword3[i] << " ";
-        cout << endl;
-        for (int i = 0; i < keyword4.size(); i++)
-            cout << "※ " << keyword4[i] << " ";
-        cout << endl;
-        cout << "------------------------------------------------------" << endl;
-        cout << "선택한 키워드: ";
-        for (int i = 0; i < KeySock.size(); i++)
-        {
-            if (i == 0)
-                cout << KeySock[i];
-            else
-                cout << ", " << KeySock[i];
-
-            if (i % 4 == 0 && i != 0)
-                cout << endl;
-        }
-        cout << endl;
-        cout << "-최소 3가지 이상-" << endl
-             << "-검색하기: e" << endl
-             << "-선택 키워드 지우기: x" << endl;
-        cout << "키워드를 선택하세요." << endl;
+        SQLiteCpp cpp;
+        std::string select, intext;
+        cout << "1.기본검색\n2.상세검색\n번호를 입력하세요:\n";
         getline(std::cin, select);
-        if (select == "e" && KeySock.size() >= 3)
-            break;
-        else if (select == "x")
-            KeyClear();
-        else
+        if (select == "1")
         {
-            if (std::find(keyword1.begin(), keyword1.end(), select) != keyword1.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
+            while (1)
             {
-                KeySock.push_back(select);
-                KeySockC.push_back(" Career LIKE '\%" + select + "\%'");
+                cout << "검색: ";
+                getline(std::cin, intext);
+                if (intext.size() != 0)
+                {
+                    baseSearch = " Title LIKE '\%" + intext + "\%';";
+                    return 2;
+                }
             }
-            else if (std::find(keyword2.begin(), keyword2.end(), select) != keyword2.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
+        }
+        else if (select == "2")
+        {
+            while (1)
             {
-                std::string vkey = std::to_string(std::find(keyword2.begin(), keyword2.end(), select) - keyword2.begin());
-                KeySock.push_back(select);
-                KeySockE.push_back(" Education LIKE '\%" + vkey + "\%'");
-            }
-            else if (std::find(keyword3.begin(), keyword3.end(), select) != keyword3.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
-            {
-                KeySock.push_back(select);
-                KeySockL.push_back(" Local LIKE '\%" + select + "\%'");
-            }
-            else if (std::find(keyword4.begin(), keyword4.end(), select) != keyword4.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
-            {
-                if (select == "C")
-                    KeySock.push_back(select + ",");
+                system("clear");
+                for (int i = 0; i < keyword1.size(); i++)
+                    cout << "※ " << keyword1[i] << " ";
+                cout << endl;
+                for (int i = 0; i < keyword2.size(); i++)
+                    cout << "※ " << keyword2[i] << " ";
+                cout << endl;
+                for (int i = 0; i < keyword3.size(); i++)
+                    cout << "※ " << keyword3[i] << " ";
+                cout << endl;
+                for (int i = 0; i < keyword4.size(); i++)
+                    cout << "※ " << keyword4[i] << " ";
+                cout << endl;
+                cout << "------------------------------------------------------" << endl;
+                cout << "선택한 키워드: ";
+                for (int i = 0; i < KeySock.size(); i++)
+                {
+                    if (i == 0)
+                        cout << KeySock[i];
+                    else
+                        cout << ", " << KeySock[i];
+
+                    if (i % 4 == 0 && i != 0)
+                        cout << endl;
+                }
+                cout << endl;
+                cout << "-최소 3가지 이상-" << endl
+                     << "-검색하기: e" << endl
+                     << "-선택 키워드 지우기: x" << endl;
+                cout << "------------------------------------------------------" << endl;
+                cout << "키워드를 선택하세요: ";
+                getline(std::cin, select);
+                if (select == "e" && KeySock.size() >= 3)
+                    return 1;
+                else if (select == "x")
+                    KeyClear();
                 else
-                    KeySock.push_back(select);
-                KeySockS.push_back(" Skill LIKE '\%" + select + "\%'");
+                {
+                    if (std::find(keyword1.begin(), keyword1.end(), select) != keyword1.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
+                    {
+                        KeySock.push_back(select);
+                        KeySockC.push_back(" Career LIKE '\%" + select + "\%'");
+                    }
+                    else if (std::find(keyword2.begin(), keyword2.end(), select) != keyword2.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
+                    {
+                        std::string vkey = std::to_string(std::find(keyword2.begin(), keyword2.end(), select) - keyword2.begin());
+                        KeySock.push_back(select);
+                        KeySockE.push_back(" Education LIKE '\%" + vkey + "\%'");
+                    }
+                    else if (std::find(keyword3.begin(), keyword3.end(), select) != keyword3.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
+                    {
+                        KeySock.push_back(select);
+                        KeySockL.push_back(" Local LIKE '\%" + select + "\%'");
+                    }
+                    else if (std::find(keyword4.begin(), keyword4.end(), select) != keyword4.end() && std::find(KeySock.begin(), KeySock.end(), select) == KeySock.end())
+                    {
+                        KeySock.push_back(select);
+                        if (select == "C")
+                            select += ",";
+                        KeySockS.push_back(" Skill LIKE '\%" + select + "\%'");
+                    }
+                }
             }
         }
     }
 }
 
-int Start::SearchMap2()
+int Start::SearchMap2(int p)
 {
     SQLiteCpp cpp;
     int num = 1;
@@ -158,112 +193,123 @@ int Start::SearchMap2()
     std::vector<std::vector<std::string>> check, check2;
     std::string content = "SELECT COUNT(*) FROM Search WHERE";
     std::string contentsearch = "SELECT Code,Title,Coperation,Local FROM Search WHERE";
-
     system("clear");
-    for (int i = 0; i < KeySockC.size(); i++)
+    if (p == 1)
     {
-        if (i == 0)
+        for (int i = 0; i < KeySockC.size(); i++)
         {
-            content += "(";
-            contentsearch += "(";
+            if (i == 0)
+            {
+                content += "(";
+                contentsearch += "(";
+            }
+            content += KeySockC[i];
+            contentsearch += KeySockC[i];
+            if (KeySockC.size() - 1 != i)
+            {
+                content += " OR";
+                contentsearch += " OR";
+            }
+            else
+            {
+                content += ")";
+                contentsearch += ")";
+            }
         }
-        content += KeySockC[i];
-        contentsearch += KeySockC[i];
-        if (KeySockC.size() - 1 != i)
+        if (KeySockC.size() != 0)
         {
-            content += " OR";
-            contentsearch += " OR";
+            content += " AND";
+            contentsearch += " AND";
         }
-        else
+        for (int i = 0; i < KeySockE.size(); i++)
         {
-            content += ")";
-            contentsearch += ")";
+            if (i == 0)
+            {
+                content += "(";
+                contentsearch += "(";
+            }
+            content += KeySockE[i];
+            contentsearch += KeySockE[i];
+            if (KeySockE.size() - 1 != i)
+            {
+                content += " OR";
+                contentsearch += " OR";
+            }
+            else
+            {
+                content += ")";
+                contentsearch += ")";
+            }
         }
+        if (KeySockE.size() != 0 && KeySockL.size() != 0)
+        {
+            content += " AND";
+            contentsearch += " AND";
+        }
+        for (int i = 0; i < KeySockL.size(); i++)
+        {
+            if (i == 0)
+            {
+                content += "(";
+                contentsearch += "(";
+            }
+            content += KeySockL[i];
+            contentsearch += KeySockL[i];
+            if (KeySockL.size() - 1 != i)
+            {
+                content += " OR";
+                contentsearch += " OR";
+            }
+            else
+            {
+                content += ")";
+                contentsearch += ")";
+            }
+        }
+        if (KeySockL.size() != 0 && KeySockS.size() != 0)
+        {
+            content += " AND";
+            contentsearch += " AND";
+        }
+        for (int i = 0; i < KeySockS.size(); i++)
+        {
+            if (i == 0)
+            {
+                content += "(";
+                contentsearch += "(";
+            }
+            content += KeySockS[i];
+            contentsearch += KeySockS[i];
+            if (KeySockS.size() - 1 != i)
+            {
+                content += " OR";
+                contentsearch += " OR";
+            }
+            else
+            {
+                content += ")";
+                contentsearch += ")";
+            }
+        }
+        content += ";";
+        contentsearch += ";";
+        // cout << contentsearch << endl; // 쿼리문 겁사
+        cpp._sqlite3_open("JobSearch");
+        check = cpp.GetRecords(content);
+        cpp._sqlite3_close();
+        cpp._sqlite3_open("JobSearch");
+        check2 = cpp.GetRecords(contentsearch);
+        cpp._sqlite3_close();
     }
-    if (KeySockC.size() != 0)
+    else
     {
-        content += " AND";
-        contentsearch += " AND";
+        cpp._sqlite3_open("JobSearch");
+        check = cpp.GetRecords(content + baseSearch);
+        cpp._sqlite3_close();
+        cpp._sqlite3_open("JobSearch");
+        check2 = cpp.GetRecords(contentsearch + baseSearch);
+        cpp._sqlite3_close();
     }
-    for (int i = 0; i < KeySockE.size(); i++)
-    {
-        if (i == 0)
-        {
-            content += "(";
-            contentsearch += "(";
-        }
-        content += KeySockE[i];
-        contentsearch += KeySockE[i];
-        if (KeySockE.size() - 1 != i)
-        {
-            content += " OR";
-            contentsearch += " OR";
-        }
-        else
-        {
-            content += ")";
-            contentsearch += ")";
-        }
-    }
-    if (KeySockE.size() != 0)
-    {
-        content += " AND";
-        contentsearch += " AND";
-    }
-    for (int i = 0; i < KeySockL.size(); i++)
-    {
-        if (i == 0)
-        {
-            content += "(";
-            contentsearch += "(";
-        }
-        content += KeySockL[i];
-        contentsearch += KeySockL[i];
-        if (KeySockL.size() - 1 != i)
-        {
-            content += " OR";
-            contentsearch += " OR";
-        }
-        else
-        {
-            content += ")";
-            contentsearch += ")";
-        }
-    }
-    if (KeySockL.size() != 0 && KeySockS.size() != 0)
-    {
-        content += " AND";
-        contentsearch += " AND";
-    }
-    for (int i = 0; i < KeySockS.size(); i++)
-    {
-        if (i == 0)
-        {
-            content += "(";
-            contentsearch += "(";
-        }
-        content += KeySockS[i];
-        contentsearch += KeySockS[i];
-        if (KeySockS.size() - 1 != i)
-        {
-            content += " OR";
-            contentsearch += " OR";
-        }
-        else
-        {
-            content += ")";
-            contentsearch += ")";
-        }
-    }
-    content += ";";
-    contentsearch += ";";
-    cout << contentsearch << endl; // 쿼리문 겁사
-    cpp._sqlite3_open("JobSearch");
-    check = cpp.GetRecords(content);
-    cpp._sqlite3_close();
-    cpp._sqlite3_open("JobSearch");
-    check2 = cpp.GetRecords(contentsearch);
-    cpp._sqlite3_close();
     for (size_t i = 0; i < check2.size(); i++)
         for (size_t j = 0; j < check2[0].size(); j++)
             switch (j)
@@ -298,7 +344,15 @@ int Start::SearchMap2()
             return 0;
         }
         else if (atoi(select.c_str()) != 0 && atoi(select.c_str()) <= 80 && atoi(select.c_str()) > 0)
-            return stoi(select);
+        {
+            for (int i = 0; i < check2.size(); i++)
+            {
+                if (check2[i][0] == select)
+                    return stoi(select);
+            }
+            cout << "잘못입력했습니다. 다시입려해주십시오\n";
+            continue;
+        }
         else
         {
             cout << "잘못입력했습니다. 다시입려해주십시오\n";
@@ -344,7 +398,14 @@ int Start::DetailMap(int cnum)
             cout << "우대사항: " << check[0][j] << endl;
             break;
         case 4:
-            cout << "지원 마감일: " << check[0][j] << endl;
+            if (check[0][j] == "0")
+                cout << "지원 마감일: "
+                     << "상시채용" << endl;
+            else if (check[0][j] == "1")
+                cout << "지원 마감일: "
+                     << "채용시 마감" << endl;
+            else
+                cout << "지원 마감일: " << check[0][j].substr(0, 4) << "년 " << check[0][j].substr(4, 2) << "월 " << check[0][j].substr(6, 2) << "일" << endl;
             break;
         default:
             break;
@@ -412,95 +473,149 @@ void Start::Cinfo(int cnum)
 void Start::CoUpdate()
 {
     SQLiteCpp cpp;
-    std::string content, intext;
-    int check = 0;
+    std::string content, intext, content2;
+    std::vector<std::vector<std::string>> check;
+    int checkn = 0;
 
     if (CoCheck() == 1)
     {
-        cout << "1.구인 정보 업데이트\n2.기업정보 업데이트" << endl;
-        getline(std::cin, intext);
-        if (intext == "1")
+        while (1)
         {
-            content = "UPDATE Search SET ";
-            while (1)
+            cout << "1.구인 정보 업데이트\n2.기업정보 업데이트\n3.나가기\n번호를 입력하세요:";
+            getline(std::cin, intext);
+            if (intext == "1")
             {
-                system("clear");
-                cout << "---------------------------------------------------------------------\n";
-                for (int i = 0; i < mcupdate1.size(); i++)
-                    cout << "※ " << mcupdate1[i] << endl;
-                cout << "---------------------------------------------------------------------\n";
-                cout << "변경할 키워드를 선택하십시오(나가기 q): ";
-                getline(std::cin, intext);
-                if (std::find(mcupdate1.begin(), mcupdate1.end(), intext) != mcupdate1.end())
+                while (1)
                 {
-                    if (check == 1)
-                        content += ", ";
-                    content += CoOverlap(intext);
-                    cout << "변경할 내용을 입력하십시오.(내용을 적지않으면 업데이트 되지않습니다.): ";
+                    content = "UPDATE Search SET ";
+                    content2 = "SELECT TITLE, SKILL, LOCAL, WORK, PREFERENTIAL, PERIOD FROM SEARCH WHERE COPERATION = '" + co + "';";
+                    system("clear");
+                    cpp._sqlite3_open("JobSearch");
+                    check = cpp.GetRecords(content2);
+                    cpp._sqlite3_close();
+                    cout << "현재 공고" << endl;
+                    cout << "---------------------------------------------------------------------\n";
+                    for (size_t i = 0; i < check.size(); i++)
+                        for (size_t j = 0; j < check[0].size(); j++)
+                            switch (j)
+                            {
+                            case 0:
+                                cout << mcupdate1[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 1:
+                                cout << mcupdate1[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 2:
+                                cout << mcupdate1[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 3:
+                                cout << mcupdate1[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 4:
+                                cout << mcupdate1[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 5:
+                                cout << mcupdate1[j] << ": " << check[i][j] << endl;
+                                break;
+                            default:
+                                break;
+                            }
+                    cout << "---------------------------------------------------------------------\n";
+                    for (int i = 0; i < mcupdate1.size(); i++)
+                        cout << "※ " << mcupdate1[i] << endl;
+                    cout << "---------------------------------------------------------------------\n";
+                    cout << "지원 마감일 -> xxxx년 xx월 xx 일 => xxxxxxxx 입력\n"
+                         << "상시채용시 -> 0\n"
+                         << "채용시 마감 -> 1\n";
+                    cout << "---------------------------------------------------------------------\n";
+                    cout << "변경할 키워드를 선택하십시오(나가기 q): ";
                     getline(std::cin, intext);
-                    if (intext.size() != 0)
+                    if (std::find(mcupdate1.begin(), mcupdate1.end(), intext) != mcupdate1.end())
                     {
-                        content += " = '" + intext + "'";
-                        check = 1;
+                        content += CoOverlap(intext);
+                        cout << content << endl;
+                        cout << "변경할 내용을 입력하십시오.(내용을 적지않으면 업데이트 되지않습니다.): ";
+                        getline(std::cin, intext);
+                        if (intext.size() != 0)
+                        {
+                            content += " = '" + intext + "' WHERE Coperation = '" + co + "';";
+                            cpp._sqlite3_open("JobSearch");
+                            cpp.InsertUser(content);
+                            cpp._sqlite3_close();
+                        }
                     }
-                }
-                else if (intext == "q")
-                {
-                    content += " WHERE Coperation = '" + co + "';";
-                    if (check != 0)
-                    {
-                        cout << content;
-                        exit(1);
-                        // cpp._sqlite3_open("JobSearch");
-                        // cpp.InsertUser(content);
-                        // cpp._sqlite3_close();
+                    else if (intext == "q")
                         break;
-                    }
                 }
             }
-        }
-        else if (intext == "2")
-        {
-            check = 0;
-            content = "UPDATE Info SET ";
-            while (1)
+            else if (intext == "2")
             {
-                system("clear");
-                cout << "---------------------------------------------------------------------\n";
-                for (int i = 0; i < mcupdate2.size(); i++)
-                    cout << "※ " << mcupdate2[i] << endl;
-                cout << "---------------------------------------------------------------------\n";
-                cout << "변경할 키워드를 선택하십시오(나가기 q): ";
-                getline(std::cin, intext);
-                if (std::find(mcupdate2.begin(), mcupdate2.end(), intext) != mcupdate2.end())
+                checkn = 0;
+                content = "UPDATE Info SET ";
+                while (1)
                 {
-                    if (check == 1)
-                        content += ", ";
-                    content += CoOverlap(intext);
-                    cout << "변경할 내용을 입력하십시오.(내용을 적지않으면 업데이트 되지않습니다.): ";
+                    content2 = "SELECT CEO, EMPLOYEE, COPERATEFORM, HOMEPAGE, ESTABLISHMENT, TYPE FROM INFO WHERE COPERATION = '" + co + "';";
+                    system("clear");
+                    cpp._sqlite3_open("JobSearch");
+                    check = cpp.GetRecords(content2);
+                    cpp._sqlite3_close();
+                    cout << "현재 공고" << endl;
+                    cout << "---------------------------------------------------------------------\n";
+                    for (size_t i = 0; i < check.size(); i++)
+                        for (size_t j = 0; j < check[0].size(); j++)
+                            switch (j)
+                            {
+                            case 0:
+                                cout << mcupdate2[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 1:
+                                cout << mcupdate2[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 2:
+                                cout << mcupdate2[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 3:
+                                cout << mcupdate2[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 4:
+                                cout << mcupdate2[j] << ": " << check[i][j] << endl;
+                                break;
+                            case 5:
+                                cout << mcupdate2[j] << ": " << check[i][j] << endl;
+                                break;
+                            default:
+                                break;
+                            }
+                    cout << "---------------------------------------------------------------------\n";
+                    for (int i = 0; i < mcupdate2.size(); i++)
+                        cout << "※ " << mcupdate2[i] << endl;
+                    cout << "---------------------------------------------------------------------\n";
+                    cout << "설립일 -> xxxx년 xx월 xx 일 => xxxxxxxx 입력\n";
+                    cout << "---------------------------------------------------------------------\n";
+                    cout << "변경할 키워드를 선택하십시오(나가기(완료) q): ";
                     getline(std::cin, intext);
-                    if (intext.size() != 0)
-                        content += " = '" + intext + "'";
-                    check = 1;
-                }
-                else if (intext == "q")
-                {
-                    content += " WHERE Coperation = '" + co + "';";
-                    if (check != 0)
+                    if (std::find(mcupdate2.begin(), mcupdate2.end(), intext) != mcupdate2.end())
                     {
-                        // cpp._sqlite3_open("JobSearch");
-                        // cpp.InsertUser(content);
-                        // cpp._sqlite3_close();
-                        cout << content;
-                        exit(1);
-                        break;
+                        content += CoOverlap(intext);
+                        cout << "변경할 내용을 입력하십시오.(내용을 적지않으면 업데이트 되지않습니다.): ";
+                        getline(std::cin, intext);
+                        if (intext.size() != 0)
+                        {
+                            content += " = '" + intext + "' WHERE Coperation = '" + co + "';";
+                            cpp._sqlite3_open("JobSearch");
+                            cpp.InsertUser(content);
+                            cpp._sqlite3_close();
+                        }
                     }
+                    else if (intext == "q")
+                        break;
                 }
             }
+            else if (intext == "3")
+                break;
         }
     }
 }
-
 std::string Start::CoOverlap(std::string check)
 {
     if (std::find(mcupdate1.begin(), mcupdate1.end(), check) != mcupdate1.end())
@@ -530,7 +645,7 @@ int Start::CoCheck()
     {
         cout << "저희 앱과 계약이 되어있지않습니다. 계약하시겠습니까?(엔터)";
         std::cin.get();
-        cout << "그런거 없어 그런거 없어 그런거 없어 그런거 없어 그런거 없어 그런거 없어 그런거 없어 그런거 없어 그런거 없어 ";
+        cout << "계약금액: 하루당 10만원\n계좌: 농협 3023614771221\n수령인: 문홍균\n입금확인후 처리해드림\n";
         std::cin.get();
         cpp._sqlite3_close();
         return 2;
